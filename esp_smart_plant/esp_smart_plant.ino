@@ -1,5 +1,5 @@
-#include <ESP8266WiFi.h>
-#include <ESP8266WebServer.h>
+#include <ESP8266WiFi.h>       // Incluye la biblioteca para la conectividad WiFi en ESP8266
+#include <ESP8266WebServer.h>  // Incluye la biblioteca para el servidor web en ESP8266
 
 /*
 ######################################################################################
@@ -7,103 +7,107 @@
 ######################################################################################
 */
 
-///////////////////////////////////////////////////////////
-// definicion de contraseña de punto de acceso
-///////////////////////////////////////////////////////////
-#define ACCESS_POINT_SSID         "smart plant"
-#define ACCESS_POINT_PASSWORD     "smart plant"
+// Definición de la contraseña y el nombre del punto de acceso (AP)
+#define ACCESS_POINT_SSID "smart plant"      // Nombre del punto de acceso
+#define ACCESS_POINT_PASSWORD "smart plant"  // Contraseña del punto de acceso
 
-#define ROUTER_WIFI_SSID          "link_home"
-#define ROUTER_WIFI_PASSWORD      "chavez8140"
+// Definición del nombre y la contraseña del WiFi del router
+#define ROUTER_WIFI_SSID "link_home"       // Nombre del WiFi del router
+#define ROUTER_WIFI_PASSWORD "chavez8140"  // Contraseña del WiFi del router
 
-#define SERVER_PUERTO                 80
-///////////////////////////////////////////////////////////
-//definiciones generales para la comunicacion web
-#define version          "0.1"
-#define TEXT_PLANO       "text/plain"
-#define JSON             "application/json"
+// Puerto en el que el servidor escuchará las solicitudes
+#define SERVER_PUERTO 80  // Puerto del servidor
 
-#define ESTADO_ENCENDIDO "ENCENDIDO"
-#define ESTADO_APAGADO   "APAGADO"
+// Definiciones generales para la comunicación web
+#define version "0.1"            // Versión del software
+#define TEXT_PLANO "text/plain"  // Tipo de contenido para texto plano
+#define JSON "application/json"  // Tipo de contenido para JSON
 
-#define ENABLE          true
-#define DISABLE         false
+// Estados de los dispositivos
+#define ESTADO_ENCENDIDO "ENCENDIDO"  // Estado de encendido
+#define ESTADO_APAGADO "APAGADO"      // Estado de apagado
 
+// Habilitar o deshabilitar ciertas funciones
+#define ENABLE true    // Habilitado
+#define DISABLE false  // Deshabilitado
 
 ////////////////////////////////////////////////////
 //           definiciones de urls
 ///////////////////////////////////////////////////
-// definicion de las rutas 
-
-#define WEB_URL_RAIZ           "/"
-#define WEB_URL_SENSOR         "/sensor"
-#define WEB_URL_ACCION         "/accion"
-#define WEB_URL_HOST_CONFING   "/sta" 
-#define WEB_URL_MI_IP          "/ip"  
+// Definición de las rutas web
+#define WEB_URL_RAIZ "/"             // Ruta raíz del servidor
+#define WEB_URL_SENSOR "/sensor"     // Ruta para acceder a los sensores
+#define WEB_URL_ACCION "/accion"     // Ruta para acciones de los actuadores
+#define WEB_URL_HOST_CONFING "/sta"  // Ruta para la configuración del host
+#define WEB_URL_MI_IP "/ip"          // Ruta para obtener la dirección IP
 
 ////////////////////////////////////////////////////
 //           definiciones de variable urls
 ///////////////////////////////////////////////////
-// define todas las nombre de las variable que recibar desde la urls
+// Define los nombres de las variables que se recibirán desde las URLs
+#define URL_VAR_SSID "ssid"             // Variable para el SSID
+#define URL_VAR_PASSWORD "password"     // Variable para la contraseña
+#define URL_VAR_SENSOR "sensor"         // Variable para el tipo de sensor
+#define URL_VAR_ACTUADOR "actuador"     // Variable para el actuador
+#define URL_VAR_ACTUADOR_VALOR "valor"  // Variable para el valor del actuador
+#define URL_VAR_TIEMPO "tiempo"         // Variable para el tiempo
 
-#define URL_VAR_SSID           "ssid"
-#define URL_VAR_PASSWORD       "password"
-#define URL_VAR_SENSOR         "sensor"
-#define URL_VAR_ACTUADOR       "actuador"   
-#define URL_VAR_ACTUADOR_VALOR "valor"
-#define URL_VAR_TIEMPO         "tiempo"
 /////////////////////////////////////////////////////
 //        definiciones de estructura JSON
 /////////////////////////////////////////////////////
-// Definie todo lo de la estructuras json
+// Define la estructura de los mensajes JSON
 
-// "{ \"estado\":\"" + _estado + " \",\"IP\":\"" + _ip + "\" }"
-const String JS               = " \"";
-const String JS_INICIO        = " { ";
-const String JS_FIN           = " } ";
-const String JS_ADD           = " , ";
-const String JS_CV            = " : ";
+// Formato del JSON: "{ \"estado\":\"" + _estado + " \",\"IP\":\"" + _ip + "\" }"
+const String JS = " \"";         // Comilla doble para el valor
+const String JS_INICIO = " { ";  // Inicio del objeto JSON
+const String JS_FIN = " } ";     // Fin del objeto JSON
+const String JS_ADD = " , ";     // Separador entre pares clave-valor
+const String JS_CV = " : ";      // Separador entre clave y valor
 
-const String JS_ESTADO        = "\"estado\"";
-const String JS_IP            = "\"ip\"";
-const String JS_SENSOR        = "\"sensor\"";
-const String JS_ACTUADOR      = "\"actuador\"";
-const String JS_VALOR         = "\"valor\"";
+// Definiciones de claves en el JSON
+const String JS_ESTADO = "\"estado\"";      // Clave para el estado
+const String JS_IP = "\"ip\"";              // Clave para la IP
+const String JS_SENSOR = "\"sensor\"";      // Clave para el sensor
+const String JS_ACTUADOR = "\"actuador\"";  // Clave para el actuador
+const String JS_VALOR = "\"valor\"";        // Clave para el valor
 
-const String JS_LUZ           = "\"ldr\"";
-const String JS_WATER_LEVEL   = "\"agua nivel\"";
-const String JS_HUMEDAD_AIRE  = "\"humedad aire\"";
-const String JS_TEMPERATURA   = "\"temperatura\"";
-const String JS_HUMEDAD_SUELO = "\"humedad suelo\"";
-const String JS_LED           = "\"led\"";
-const String JS_SERVO         = "\"servo\"";
+// Definiciones de sensores y actuadores
+const String JS_LUZ = "\"ldr\"";                      // Sensor de luz
+const String JS_WATER_LEVEL = "\"agua nivel\"";       // Sensor de nivel de agua
+const String JS_HUMEDAD_AIRE = "\"humedad aire\"";    // Sensor de humedad del aire
+const String JS_TEMPERATURA = "\"temperatura\"";      // Sensor de temperatura
+const String JS_HUMEDAD_SUELO = "\"humedad suelo\"";  // Sensor de humedad del suelo
+const String JS_LED = "\"led\"";                      // Estado del LED
+const String JS_SERVO = "\"servo\"";                  // Estado del servo
 
 ////////////////////////////////////////////////////
 //           definiciones de Errores
 ///////////////////////////////////////////////////
-// definicion de palabras de errores
-#define WEB_EXITO              "0 RECIBIDO"
-#define WEB_ERROR_RECURSO      "1 RECURSO NO ENCONTRADO"
-#define WEB_ERROR_PARAMETROS   "2 PARAMETRO NO ENCONTRADO"
-#define WEB_ERROR_METHOD       "3 METODO NO ENCONTRADO"
-#define WEB_ERROR_SENSOR       "4 SENSOR NO ENCONTRADO"
-#define WEB_ERROR_ACCION       "5 ACTUADOR NO ENCONTRADO"
-#define WEB_ERROR_VALOR        "6 VALOR PARA EL ACTUADOR NO ENCONTRADO"
-#define WEB_ERROR_ACCION_GET   "7 ACTUADOR NO SE ENCUENTRA VALOR"
+// Definición de mensajes de error
+#define WEB_EXITO "0 RECIBIDO"                                    // Mensaje de éxito
+#define WEB_ERROR_RECURSO "1 RECURSO NO ENCONTRADO"               // Error: recurso no encontrado
+#define WEB_ERROR_PARAMETROS "2 PARAMETRO NO ENCONTRADO"          // Error: parámetro no encontrado
+#define WEB_ERROR_METHOD "3 METODO NO ENCONTRADO"                 // Error: método no encontrado
+#define WEB_ERROR_SENSOR "4 SENSOR NO ENCONTRADO"                 // Error: sensor no encontrado
+#define WEB_ERROR_ACCION "5 ACTUADOR NO ENCONTRADO"               // Error: actuador no encontrado
+#define WEB_ERROR_VALOR "6 VALOR PARA EL ACTUADOR NO ENCONTRADO"  // Error: valor no encontrado
+#define WEB_ERROR_ACCION_GET "7 ACTUADOR NO SE ENCUENTRA VALOR"   // Error: valor del actuador no encontrado
 
-// establaciendo valores para el servidor
-ESP8266WebServer server(SERVER_PUERTO);
+// Estableciendo valores para el servidor
+ESP8266WebServer server(SERVER_PUERTO);  // Crea una instancia del servidor en el puerto definido
 
-IPAddress local_ip(192, 168, 10 , 1);
-IPAddress gateway (192, 168, 10 , 1);
-IPAddress subnet  (255, 255, 255, 0);
+// Configuración de la IP local y la puerta de enlace
+IPAddress local_ip(192, 168, 10, 1);  // Dirección IP local del ESP8266
+IPAddress gateway(192, 168, 10, 1);   // Puerta de enlace
+IPAddress subnet(255, 255, 255, 0);   // Máscara de subred
 
-/// STA
+/// STA (Estación)
 
-String ssid_sta       = ROUTER_WIFI_SSID;
-String password_sta   = ROUTER_WIFI_PASSWORD;
+// Variables para la conexión WiFi en modo estación
+String ssid_sta = ROUTER_WIFI_SSID;          // SSID del router
+String password_sta = ROUTER_WIFI_PASSWORD;  // Contraseña del router
 
-bool sta_conectandose = false;
+bool sta_conectandose = false;  // Estado de conexión en modo estación
 
 /*
 ##################################################################################
@@ -111,116 +115,124 @@ bool sta_conectandose = false;
 ##################################################################################
 */
 
+// Hilos de ejecución
 //////////////////////////////////////////////////
-//           hilos de ejecusion
-//////////////////////////////////////////////////
-//disparadores
-#define TReconecion 10000  // 10segundos
-#define TMonitoreo  5000    // 1 segundo
+// Disparadores de temporización
+#define TReconecion 10000  // Tiempo de reconexión (10 segundos)
+#define TMonitoreo 5000    // Tiempo de monitoreo (5 segundos)
 
-//cronomecros
-unsigned long TP_reconecion       = 0;
-unsigned long TP_monitoreo_planta = 0;
+// Variables para almacenar tiempos de cronometraje
+unsigned long TP_reconecion = 0;        // Cronómetro para la reconexión
+unsigned long TP_monitoreo_planta = 0;  // Cronómetro para el monitoreo de la planta
 
-bool estado_hilo_reconexion = DISABLE;
-bool estado_hilo_monitoreo_planta = DISABLE;
+bool estado_hilo_reconexion = DISABLE;        // Estado del hilo de reconexión
+bool estado_hilo_monitoreo_planta = DISABLE;  // Estado del hilo de monitoreo de la planta
 
 //////////////////////////////////////////////
-//      Definicion de comunicacion Serial
+//      Definición de comunicación Serial
 //////////////////////////////////////////////
-// configuracion de virutal serial
+// Configuración de comunicación serial virtual
 
-#include <SoftwareSerial.h>
-#define RxEsp 0
-#define TxEsp 2
-SoftwareSerial softwareSerial(RxEsp,TxEsp);
+#include <SoftwareSerial.h>                   // Incluye la biblioteca para la comunicación serial virtual
+#define RxEsp 0                               // Pin para recibir datos desde el ESP
+#define TxEsp 2                               // Pin para enviar datos al ESP
+SoftwareSerial softwareSerial(RxEsp, TxEsp);  // Crea un objeto de SoftwareSerial
 
-String mensaje_arduino  = "";
-String mandar_mensaje   = "";
+// Variables para manejar mensajes
+String mensaje_arduino = "";  // Mensaje recibido del Arduino
+String mandar_mensaje = "";   // Mensaje a enviar al Arduino
 
-String comando          = "";
-String comando_objetivo = "";
-String comando_valor    = "";
+String comando = "";           // Comando recibido
+String comando_objetivo = "";  // Objetivo del comando
+String comando_valor = "";     // Valor del comando
 
 /////////////////////////////////////////////////
-//      Definciones de comando arduino ERIC
+//      Definiciones de comandos para Arduino
 /////////////////////////////////////////////////
 
-#define C_LECTURA       "GET"
-#define C_ACTUADOR      "MOVE"
+#define C_LECTURA "GET"    // Comando para lectura
+#define C_ACTUADOR "MOVE"  // Comando para mover un actuador
 
-// sensores
-#define C_TODO          "TODO" 
-#define C_LDR           "LDR"
-#define C_LDR0          "LDR0"
-#define C_LDR1          "LDR1"
-#define C_LDR2          "LDR2"
-#define C_Humedad_aire  "HUM_AIRE"
-#define C_Temperatura   "TEMP"
-#define C_Humedad_suelo "HUM_PISO"
-#define C_Nivel_agua    "WL"
+// Definiciones de sensores
+#define C_TODO "TODO"               // Comando para leer todos los sensores
+#define C_LDR "LDR"                 // Comando para leer el sensor de luz
+#define C_LDR0 "LDR0"               // Comando para leer el sensor de luz 0
+#define C_LDR1 "LDR1"               // Comando para leer el sensor de luz 1
+#define C_LDR2 "LDR2"               // Comando para leer el sensor de luz 2
+#define C_Humedad_aire "HUM_AIRE"   // Comando para leer humedad del aire
+#define C_Temperatura "TEMP"        // Comando para leer temperatura
+#define C_Humedad_suelo "HUM_PISO"  // Comando para leer humedad del suelo
+#define C_Nivel_agua "WL"           // Comando para leer nivel de agua
 
-//Actuadores
-#define C_servo         "SERVO"
-#define C_LED           "LED"
-
-//////////////////////////////////////////////////
-//       ERRORES DE COMUNICASION SERIALES
-//////////////////////////////////////////////////
-
-#define SERIAL_EXITO                 '0' // LISTO"
-#define SERIAL_ERROR_COMANDO         '1' // COMANDO NO ENCONTRADO"
-#define SERIAL_ERROR_OBJETIVO        '2' // OBJETIVO NO ENCONTRADO"
-#define SERIAL_ERROR_VALOR           '3' // VALOR NO ENCONTRADO"
-#define SERIAL_ERROR_VALOR_NO_VALIDO '4' // ERROR AL LEER EL VALOR"
-#define SERIAL_ERROR_DESCONOCIDO     '5' // ERROR DESCONOCIDO"
-#define SERIAL_SENSORES              '6' // LEER SENSORES
+// Definiciones de actuadores
+#define C_servo "SERVO"  // Comando para el servo
+#define C_LED "LED"      // Comando para el LED
 
 //////////////////////////////////////////////////
-//       PETICIONES DE COMUNICASION SERIALES
+//       ERRORES DE COMUNICACIÓN SERIALES
 //////////////////////////////////////////////////
 
-#define LEER_SENSORES         "GET TODO 0"
-#define LEER_LDR              "GET LDR 0"
-#define LEER_TEMPERATURA      "GET TEMP 0"
-#define LEER_HUMEDAD_AIRE     "GET HUM_AIRE 0"
-#define LEER_HUMEDAD_SUELO    "GET HUM_SUELO 0"
-#define LEER_NIVEL_AGUA       "GET WL 0"
-#define LEER_LED              "GET LED 0"
-#define LEER_SERVO            "GET SERVO 0"
+// Definición de mensajes de error en la comunicación serial
+#define SERIAL_EXITO '0'                  // Indica éxito
+#define SERIAL_ERROR_COMANDO '1'          // Error: comando no encontrado
+#define SERIAL_ERROR_OBJETIVO '2'         // Error: objetivo no encontrado
+#define SERIAL_ERROR_VALOR '3'            // Error: valor no encontrado
+#define SERIAL_ERROR_VALOR_NO_VALIDO '4'  // Error: valor no válido
+#define SERIAL_ERROR_DESCONOCIDO '5'      // Error desconocido
+#define SERIAL_SENSORES '6'               // Comando para leer sensores
 
 //////////////////////////////////////////////////
-//       PETICIONES DE COMUNICASION SERIALES
+//       PETICIONES DE COMUNICACIÓN SERIALES
 //////////////////////////////////////////////////
 
-#define ACTUADOR_SERVO        "MOVE SERVO "
-#define ACTUADOR_LED          "MOVE LED "
+// Definiciones de comandos para solicitar datos de los sensores
+#define LEER_SENSORES "GET TODO 0"            // Comando para leer todos los sensores
+#define LEER_LDR "GET LDR 0"                  // Comando para leer el sensor de luz
+#define LEER_TEMPERATURA "GET TEMP 0"         // Comando para leer temperatura
+#define LEER_HUMEDAD_AIRE "GET HUM_AIRE 0"    // Comando para leer humedad del aire
+#define LEER_HUMEDAD_SUELO "GET HUM_SUELO 0"  // Comando para leer humedad del suelo
+#define LEER_NIVEL_AGUA "GET WL 0"            // Comando para leer nivel de agua
+#define LEER_LED "GET LED 0"                  // Comando para leer estado del LED
+#define LEER_SERVO "GET SERVO 0"              // Comando para leer estado del servo
 
 //////////////////////////////////////////////////
-//       valores de los sensores
+//       PETICIONES DE COMUNICACIÓN SERIALES
 //////////////////////////////////////////////////
-int sensor_ldr0          = 0;
-int sensor_ldr1          = 0;
-int sensor_ldr2          = 0;
-int sensor_ldr_promedio  = 0;
-int sensor_humedad_aire  = 0;
-int sensor_humedad_suelo = 0;
-int sensor_temperatura   = 0;
-int sensor_nivel_agua    = 0;
-int sensor_led           = 0;
-int sensor_servo         = 0;
+
+// Comandos para controlar actuadores
+#define ACTUADOR_SERVO "MOVE SERVO "  // Comando para mover el servo
+#define ACTUADOR_LED "MOVE LED "      // Comando para mover el LED
+
+//////////////////////////////////////////////////
+//       Valores de los sensores
+//////////////////////////////////////////////////
+
+// Variables para almacenar los valores de diferentes sensores
+int sensor_ldr0 = 0;           // Valor del sensor de luz 0
+int sensor_ldr1 = 0;           // Valor del sensor de luz 1
+int sensor_ldr2 = 0;           // Valor del sensor de luz 2
+int sensor_ldr_promedio = 0;   // Promedio de los sensores de luz
+int sensor_humedad_aire = 0;   // Valor de humedad del aire
+int sensor_humedad_suelo = 0;  // Valor de humedad del suelo
+int sensor_temperatura = 0;    // Valor de temperatura
+int sensor_nivel_agua = 0;     // Valor de nivel de agua
+int sensor_led = 0;            // Estado del LED
+int sensor_servo = 0;          // Estado del servo
 
 
-////////////////////////////////////////////////
-// control de peticiones
-///////////////////////////////////////////////
+///////////////////////////////////////////////////
+//        control
+///////////////////////////////////////////////////
 
-#define STOP_COMUNICACION  "STOP"
-#define START_COMUNICACION "START"
+#define COMUNICACION_SERIAL_STOP "STOP"
+#define COMUNICACION_SERIAL_START "START"
+
 bool comunicacion_enable = true;
 
+#define WIFI_DESCONECTAR "WIFI STOP"
+#define WIFI_CONECTAR "WIFI START"
 
-
+bool wifi_conection_enable = true;
 
 /*
 ###########################################################################
@@ -230,389 +242,377 @@ bool comunicacion_enable = true;
 ###########################################################################
 */
 
-
+// Función de configuración inicial del sistema
 void setup() {
+  pinMode(RxEsp, LOW);
+  Serial.begin(115200);        // Inicia la comunicación serial a 115200 bps
+  softwareSerial.begin(9600);  // Inicia la comunicación serial virtual a 9600 bps
 
-  Serial.begin(115200);
-  softwareSerial.begin(9600);
-  red_setup();
-  softwareSerial.println("LISTO");
+  red_setup();                      // Configura la red
+  softwareSerial.println("LISTO");  // Indica que el sistema está listo
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  loop_red();
-  
-  loop_sistema_comunicacion();
-  loop_monitoreo_control();
+  // Código principal que se ejecuta repetidamente
+  loop_red();  // Maneja las solicitudes del servidor
 
-  hilo_reconection();
-  hilo_monitoreo();
+  loop_sistema_comunicacion();  // Maneja la comunicación con el sistema
+
+  loop_monitoreo_control();  // Monitorea y controla la planta
+
+  hilo_reconection();  // Ejecuta el hilo de reconexión
+  hilo_monitoreo();    // Ejecuta el hilo de monitoreo
 }
 
+// Hilo para manejar la reconexión a la red
+void hilo_reconection() {
+  unsigned long tiempo_transcurrido = millis();              // Tiempo transcurrido desde el inicio
+  if (tiempo_transcurrido - TP_reconecion >= TReconecion) {  // Comprueba si han pasado 10 segundos
+    TP_reconecion = tiempo_transcurrido;                     // Actualiza el cronómetro
+    estado_hilo_reconexion = ENABLE;                         // Habilita el hilo de reconexión
 
-void hilo_reconection(){
-  unsigned long tiempo_transcurrido = millis();                           // hilo de tarea que se ejecuta una vez cada 10 segundo
-  if (tiempo_transcurrido - TP_reconecion >= TReconecion) {               //comprueba si ya pasaron 10 segundo para volver a reconectar;
-    
-    TP_reconecion = tiempo_transcurrido;
-    estado_hilo_reconexion = ENABLE;                                              // Disparador del hilo 
-
-    // aqui debajo el codigo que se ejecutara cada 10 segundo
+    // Código que se ejecutará cada 10 segundos
     loop_control_super_lento();
-  }else{
-    estado_hilo_reconexion = DISABLE;
+  } else {
+    estado_hilo_reconexion = DISABLE;  // Desactiva el hilo si no ha pasado el tiempo
   }
 }
 
-void hilo_monitoreo(){
-  unsigned long tiempo_transcurrido = millis();                           // hilo de tarea que se ejecuta una vez cada 5 segundo
-  if (tiempo_transcurrido - TP_monitoreo_planta >= TMonitoreo) {               //comprueba si ya pasaron 10 segundo para volver a reconectar;
-    TP_monitoreo_planta = tiempo_transcurrido;
-    estado_hilo_monitoreo_planta = ENABLE;                                              // Disparador del hilo 
+// Hilo para manejar el monitoreo de la planta
+void hilo_monitoreo() {
+  unsigned long tiempo_transcurrido = millis();                   // Tiempo transcurrido desde el inicio
+  if (tiempo_transcurrido - TP_monitoreo_planta >= TMonitoreo) {  // Comprueba si han pasado 5 segundos
+    TP_monitoreo_planta = tiempo_transcurrido;                    // Actualiza el cronómetro
+    estado_hilo_monitoreo_planta = ENABLE;                        // Habilita el hilo de monitoreo
 
-    // Aqui debajo el codigo que se ejecutara cada 5 segund
+    // Código que se ejecutará cada 5 segundos
     loop_control_lento();
-
-
-  }else{
-    estado_hilo_monitoreo_planta = DISABLE;
+  } else {
+    estado_hilo_monitoreo_planta = DISABLE;  // Desactiva el hilo si no ha pasado el tiempo
   }
 }
+
 /*
 ###########################################################################
 #
-#                        Configuracion de red
+#                        Configuración de red
 #
 ###########################################################################
 */
 
-
-
+// Función para configurar la red y el servidor
 //////////////////////////////////////////////////////////////////////////
-//              configuracion incial de RED y SERVIDOR
+//              configuración inicial de RED y SERVIDOR
 //////////////////////////////////////////////////////////////////////////
-// funcion para setup es para red y servidor
 void red_setup() {
-  ap_setting();          // Configuracion de punto de aceso ( ACESS POINT)
-  server_setting();      // Configuracion del Servidor // rutas
-  sta_conectarse_red();  // Conectarse a la RED EXISTENTE
+  ap_setting();          // Configura el punto de acceso (Access Point)
+  server_setting();      // Configura el servidor y las rutas
+  sta_conectarse_red();  // Conéctate a la red existente
 }
 
-void loop_red(){
-  server.handleClient();
-  sta_connection_try();
+// Función para manejar las solicitudes del servidor
+void loop_red() {
+  server.handleClient();  // Maneja las solicitudes del cliente
+  sta_connection_try();   // Intenta conectarse a la red
 }
 
-
-
 //////////////////////////////////////////////////////////////////////////
-//                    ENCENDER EL MODO ACCESS POINTS
+//                    ENCENDER EL MODO ACCESS POINT
 //////////////////////////////////////////////////////////////////////////
-//configuracion AP
+
+// Configuración del modo Access Point (AP)
 void ap_setting() {
-  WiFi.softAPConfig(local_ip, gateway, subnet);  // configurarmos AP
-  WiFi.softAP(ACCESS_POINT_SSID, ACCESS_POINT_PASSWORD);                   // Establecemos el SSID y PASSWORD
+  WiFi.softAPConfig(local_ip, gateway, subnet);           // Configuramos la dirección IP, gateway y subnet del AP
+  WiFi.softAP(ACCESS_POINT_SSID, ACCESS_POINT_PASSWORD);  // Establecemos el SSID y la contraseña del AP
 
-  Serial.println("Punto de acceso iniciado");    // CAMBIAR SALIDA
-  Serial.print("Direccion IP: ");                // CAMBIAR SALIDA
-  Serial.println(WiFi.softAPIP());               // CAMBIAR SALIDA
+  Serial.println("Punto de acceso iniciado");  // Mensaje de inicio del AP
+  Serial.print("Direccion IP: ");              // Muestra la dirección IP del AP
+  Serial.println(WiFi.softAPIP());             // Imprime la dirección IP del AP
 }
-
-
 
 //////////////////////////////////////////////////////////////////////////
 //          ENCENDER EL MODO WIFI Y CONECTARSE A LA RED
 //////////////////////////////////////////////////////////////////////////
-//// conectarse a una red existente
+
+// Conectar a una red existente
 void sta_conectarse_red() {
+  WiFi.begin(ssid_sta, password_sta);  // Inicia la conexión a la red
+  sta_conectandose = true;             // Estado de intento de conexión
 
-  WiFi.begin(ssid_sta, password_sta);              // conectarse a la RED
-  sta_conectandose = true;                         // _Estado de intento de conection
-
-  Serial.println("conectandose a: " + ssid_sta);   // CAMBIAR SALIDA
+  Serial.println("conectandose a: " + ssid_sta);  // Mensaje de conexión
 }
 
-
-// si se desconecta la red volverse a conectar 
+// Si se desconecta de la red, intenta reconectarse
 void sta_connection_try() {
-
-  byte __estado = WiFi.status();                                          // sabemos si esta conectado a la red o no
-
-  if (__estado != WL_CONNECTED && sta_conectandose == false) {            // si no esta coenctado y no esta intentando conectarse
-    sta_conectarse_red();                                                 // vuelve a intentar conectarse
-    sta_conectandose = true;                                              // _Estado de intento de conection
-
-    Serial.println("conectandose a la red: " + ssid_sta);                 // CAMBIAR SALIDA manda la red que esta intentando conectarse
+  if (wifi_conection_enable == false) {
+    return;
   }
 
 
-  if (__estado == WL_CONNECTED) {                                          // si esta conectado
-    if (sta_conectandose == true) {                                        // nos muestra la ip
-      Serial.println("conexion exitosa, IP:" + WiFi.localIP().toString()); // CAMBIAR SALIDA
+  byte __estado = WiFi.status();  // Obtiene el estado de la conexión
+
+  // Si no está conectado y no está intentando conectarse
+  if (__estado != WL_CONNECTED && sta_conectandose == false) {
+    sta_conectarse_red();     // Intenta reconectarse
+    sta_conectandose = true;  // Actualiza el estado de conexión
+
+    Serial.println("conectandose a la red: " + ssid_sta);  // Mensaje de intento de conexión
+  }
+
+  // Si está conectado
+  if (__estado == WL_CONNECTED) {
+    if (sta_conectandose == true) {                                         // Si estaba intentando conectarse
+      Serial.println("conexion exitosa, IP:" + WiFi.localIP().toString());  // Muestra la IP local
     }
-    sta_conectandose = false;                                              // _Estado de intento de conection
-    return;                                                                // Forsamos salida de la funcion
-  }
-  if(estado_hilo_reconexion == ENABLE){                                    //comprueba si ya pasaron 10 segundo para volver a reconectar;
-    sta_conectandose = false;
+    sta_conectandose = false;  // Resetea el estado de conexión
+    return;                    // Sale de la función
   }
 
+  // Si el hilo de reconexión está habilitado, permite que intente reconectar
+  if (estado_hilo_reconexion == ENABLE) {
+    sta_conectandose = false;  // Resetea el estado si no está conectado
+  }
 }
-
-
 
 /*
 ########################################################################
 #
-#                      configuracion de SERVIDOR
+#                      Configuración de SERVIDOR
 #
 ########################################################################
 */
 
-
-
-
 //////////////////////////////////////////////////////////////////////////
-//                     Definicion de rutas 
+//                     Definición de rutas
 //////////////////////////////////////////////////////////////////////////
-// Definicion de todas las rutas del servidor 
+
+// Definición de todas las rutas del servidor
 void server_setting() {
-  server.on("/", raiz_get);
-  server.on("/ip", mi_ip);
-  server.on("/sta", sta_metodo);
-  server.on("/sensor",sensor_get);
-  server.on("/accion",accion_method);
+  server.on("/", raiz_get);             // Ruta raíz
+  server.on("/ip", mi_ip);              // Ruta para obtener la IP
+  server.on("/sta", sta_metodo);        // Ruta para configuración del cliente
+  server.on("/sensor", sensor_get);     // Ruta para obtener datos del sensor
+  server.on("/accion", accion_method);  // Ruta para ejecutar acciones
 
-  server.onNotFound(no_encontrado);
+  server.onNotFound(no_encontrado);  // Maneja rutas no encontradas
 
-  // importante inicialza el servidor
+  // Inicializa el servidor
   server.begin();
-  //ninguna ruta debe ir por debajo de server.begin
+  // Ninguna ruta debe ir por debajo de server.begin
 }
 
 //////////////////////////////////////////////////////////////////////////
-//                     RUTA: /   metodos get
+//                     RUTA: /   Métodos GET
 //////////////////////////////////////////////////////////////////////////
-// RAIZ
+
+// Manejo de la ruta raíz
 void raiz_get() {
-  server.send(200, TEXT_PLANO, version);
+  server.send(200, TEXT_PLANO, version);  // Responde con el estado 200 y la versión del servidor
 }
 
-
-
 //////////////////////////////////////////////////////////////////////////
-//                 RUTA: no encontrado   metodos get
+//                 RUTA: no encontrado   Métodos GET
 //////////////////////////////////////////////////////////////////////////
-// pagina no encontrada
+
+// Manejo de la página no encontrada
 void no_encontrado() {
-  server.send(404, TEXT_PLANO, WEB_ERROR_RECURSO);
+  server.send(404, TEXT_PLANO, WEB_ERROR_RECURSO);  // Responde con error 404
 }
 
-
-
 //////////////////////////////////////////////////////////////////////////
-//                    RUTA: /ip   metodos get
+//                    RUTA: /ip   Métodos GET
 //////////////////////////////////////////////////////////////////////////
-// devuelve la ip del dispositivo
+
+// Devuelve la IP del dispositivo
 void mi_ip() {
-  IPAddress clientIP = server.client().remoteIP();                   // OBtiene IP
+  IPAddress clientIP = server.client().remoteIP();  // Obtiene la IP del cliente
 
-  Serial.print("Dispositivo conectado desde la IP: ");               // CAMBIAR SALIDA 
-  Serial.println(clientIP);                                          // CAMBIAR SALIDA Imprime la IP del dispositivo 
+  Serial.print("Dispositivo conectado desde la IP: ");  // Mensaje para el monitor serie
+  Serial.println(clientIP);                             // Imprime la IP del dispositivo
 
-  server.send(200, TEXT_PLANO, "Mi IP es : " + clientIP.toString());// MANDA LA IP DEL cliente del server 
+  server.send(200, TEXT_PLANO, "Mi IP es : " + clientIP.toString());  // Envía la IP al cliente
 }
 
-
-
 //////////////////////////////////////////////////////////////////////////
-//                 RUTA: /sta   metodos get y post
+//                 RUTA: /sta   Métodos GET y POST
 //////////////////////////////////////////////////////////////////////////
-// diferenciacion de metodos post y get para STA
-void sta_metodo() {                                       
-  if (server.method() == HTTP_GET) {                      // Metodo GET
-    sta_get();
-  } else if (server.method() == HTTP_POST) {              // Metodo POST
-    sta_post();
-  } else {                                                // si es un metodo diferente
-    server.send(400, TEXT_PLANO, WEB_ERROR_PARAMETROS);  // manda mensaje de error al cliente
+
+// Diferenciación de métodos POST y GET para la ruta /sta
+void sta_metodo() {
+  if (server.method() == HTTP_GET) {                     // Si el método es GET
+    sta_get();                                           // Llama al manejador de GET
+  } else if (server.method() == HTTP_POST) {             // Si el método es POST
+    sta_post();                                          // Llama al manejador de POST
+  } else {                                               // Si es un método diferente
+    server.send(400, TEXT_PLANO, WEB_ERROR_PARAMETROS);  // Envía un error de parámetros
   }
 }
 
+// Gestor del método GET para la ruta /sta
+void sta_get() {
+  String jsonResponse;  // String para la respuesta en formato JSON
+  String _estado = "";  // Variable para guardar el estado de la red
+  String _ip = "";      // Variable para guardar la IP que toma el HOST
 
-// gestor de metodo get para la ruta /sta 
-void sta_get() {                        
-  
-  String jsonResponse;                  // string para la respuesta en formato JSON
-  String _estado = "";                  // Variable para guardar el estado de la RED
-  String _ip = "";                      // Variable para guardar la ip que toma el HOST
-
-  if (WiFi.status() == WL_CONNECTED) {  // comprueba Si se pudo conectar a la Red
-    _estado = ESTADO_ENCENDIDO;                // Estado de la conection
+  if (WiFi.status() == WL_CONNECTED) {  // Comprueba si se pudo conectar a la red
+    _estado = ESTADO_ENCENDIDO;         // Estado de conexión
     _ip = WiFi.localIP().toString();    // IP del HOST
   } else {
-    _estado = ESTADO_APAGADO;                  // Estado de ka conection
-    _ip = WiFi.softAPIP().toString();   // IP del host pero como punto de Acceso
+    _estado = ESTADO_APAGADO;          // Estado de desconexión
+    _ip = WiFi.softAPIP().toString();  // IP del HOST en modo AP
   }
 
-  // respuesta
-  //jsonResponse = "{ \"estado\":\"" + _estado + " \",\"IP\":\"" + _ip + "\" }";  // json de respuesta
-  jsonResponse = JS_INICIO + 
-                 JS_ESTADO + JS_CV + JS + _estado + JS + 
-                 JS_ADD +
-                 JS_IP     + JS_CV + JS + _ip     + JS +
-                 JS_FIN;
+  // Formato JSON de respuesta
+  jsonResponse = JS_INICIO + JS_ESTADO + JS_CV + JS + _estado + JS + JS_ADD + JS_IP + JS_CV + JS + _ip + JS + JS_FIN;
 
-  server.send(200, JSON, jsonResponse);
+  server.send(200, JSON, jsonResponse);  // Envía la respuesta JSON
 }
 
+// Gestor del método POST para la ruta /sta
+void sta_post() {
+  // Comprobar si recibió los argumentos de SSID y PASSWORD
+  if (server.hasArg(URL_VAR_SSID) && server.hasArg(URL_VAR_PASSWORD)) {
+    String _ssid_sta = server.arg(URL_VAR_SSID);          // Obtener el valor de SSID
+    String _password_sta = server.arg(URL_VAR_PASSWORD);  // Obtener el valor de PASSWORD
 
-// gestor de metodo post para la ruta /sta 
-void sta_post() { 
+    ssid_sta = _ssid_sta;          // Actualiza el SSID
+    password_sta = _password_sta;  // Actualiza la contraseña
 
-  if (server.hasArg(URL_VAR_SSID) &&                            // Comprobar si recibio los argumentos de SSID y PASSWORD  
-      server.hasArg(URL_VAR_PASSWORD)) {                         
+    sta_conectarse_red();  // Conectar a la nueva red
 
-    String _ssid_sta = server.arg(URL_VAR_SSID);                // OBtener el valor mandado de SSID
-    String _password_sta = server.arg(URL_VAR_PASSWORD);        // Obtener el valor mandado de PASSWORD
-
-    ssid_sta = _ssid_sta;                                       // Pasamos la red la cual nos conectaremos
-    password_sta = _password_sta;                               // Pasamos la Password de la red a la cual nos conectaremos
-
-    sta_conectarse_red();                                       // conectarse a la nueva red 
-
-    //respuestaaa
-    Serial.println(_ssid_sta + _password_sta);                  // CAMBIAR SALIDA 
-    server.send(200, TEXT_PLANO, WEB_EXITO);                   // Manda respuesta al cliente Web
+    Serial.println(_ssid_sta + _password_sta);  // Mensaje de estado
+    server.send(200, TEXT_PLANO, WEB_EXITO);    // Responde con éxito al cliente
   } else {
-    server.send(400, TEXT_PLANO, WEB_ERROR_PARAMETROS);        // Manda respuesta de error
+    server.send(400, TEXT_PLANO, WEB_ERROR_PARAMETROS);  // Responde con error
   }
 }
-
-
 //////////////////////////////////////////////////////////////////////////
-//                 RUTA: /Sensor   metodos get 
+//                 RUTA: /Sensor   Métodos GET
 //////////////////////////////////////////////////////////////////////////
-//devuelve los valores de los sensores 
-void sensor_get(){
+
+// Devuelve los valores de los sensores
+void sensor_get() {
   String tipo_sensor;
-  if (server.hasArg(URL_VAR_SENSOR)){
-    tipo_sensor   = server.arg(URL_VAR_SENSOR);                 // Mandar solo el sensor recibido
-    String _valor = String(detectar_valor_sensor(tipo_sensor));
+  if (server.hasArg(URL_VAR_SENSOR)) {
+    tipo_sensor = server.arg(URL_VAR_SENSOR);                    // Obtiene el tipo de sensor solicitado
+    String _valor = String(detectar_valor_sensor(tipo_sensor));  // Detecta el valor del sensor
 
     String jsonResponse;
-    jsonResponse = JS_INICIO + 
-                   JS_SENSOR + JS_CV + tipo_sensor +
-                   JS_ADD    +
-                   JS_VALOR  + JS_CV + _valor + 
+    jsonResponse = JS_INICIO + JS_SENSOR + JS_CV + tipo_sensor +  // Incluye el tipo de sensor
+                   JS_ADD + JS_VALOR + JS_CV + _valor +           // Incluye el valor del sensor
                    JS_FIN;
-    
-    server.send(200,JSON,jsonResponse);
-  }else{
+
+    server.send(200, JSON, jsonResponse);  // Envía la respuesta JSON con el valor del sensor específico
+  } else {
+    // Responde con todos los valores de los sensores
     String jsonResponse;
-    jsonResponse = JS_INICIO         +
-                    JS_LUZ           + JS_CV + JS + String(sensor_ldr_promedio)  + JS +
-                    JS_ADD           +
-                    JS_WATER_LEVEL   + JS_CV + JS + String(sensor_nivel_agua)    + JS +
-                    JS_ADD           +
-                    JS_HUMEDAD_AIRE  + JS_CV + JS + String(sensor_humedad_aire)  + JS +
-                    JS_ADD           +
-                    JS_HUMEDAD_SUELO + JS_CV + JS + String(sensor_humedad_suelo) + JS +
-                    JS_ADD           +
-                    JS_TEMPERATURA   + JS_CV + JS + String(sensor_temperatura)   + JS +
-                    JS_ADD           +
-                    JS_LED           + JS_CV + JS + String(sensor_led)           + JS +
-                    JS_ADD           +
-                    JS_SENSOR        + JS_CV + JS + String(sensor_servo)         + JS +
-                    JS_FIN;
+    jsonResponse = JS_INICIO + JS_LUZ + JS_CV + JS + String(sensor_ldr_promedio) + JS + JS_ADD + JS_WATER_LEVEL + JS_CV + JS + String(sensor_nivel_agua) + JS + JS_ADD + JS_HUMEDAD_AIRE + JS_CV + JS + String(sensor_humedad_aire) + JS + JS_ADD + JS_HUMEDAD_SUELO + JS_CV + JS + String(sensor_humedad_suelo) + JS + JS_ADD + JS_TEMPERATURA + JS_CV + JS + String(sensor_temperatura) + JS + JS_ADD + JS_LED + JS_CV + JS + String(sensor_led) + JS + JS_ADD + JS_SENSOR + JS_CV + JS + String(sensor_servo) + JS + JS_FIN;
 
-    server.send(200,JSON,jsonResponse);             // MANDAR TODO LOS VALORES DE LOS SENSORES 
-  }
-
-}
-
-//////////////////////////////////////////////////////////////////////////
-//                 RUTA: /ACCION   metodos get y post
-//////////////////////////////////////////////////////////////////////////
-// gestor de los metodos post y get 
-void accion_method(){
-
-  if(server.method() == HTTP_GET){
-    accion_get();
-  }else if(server.method() == HTTP_POST) {
-    accion_post();
-  }else{
-    server.send(404,TEXT_PLANO,"RECURSO NO ENCONTRADO");
+    server.send(200, JSON, jsonResponse);  // Envía todos los valores de los sensores
   }
 }
 
-// metodos get de la ruta "/accion"
-void accion_get(){
-  if(server.hasArg(URL_VAR_ACTUADOR)){
-    String actuador = server.arg(URL_VAR_ACTUADOR);           // Mandar solo el sensor recibido
+//////////////////////////////////////////////////////////////////////////
+//                 RUTA: /ACCION   Métodos GET y POST
+//////////////////////////////////////////////////////////////////////////
+
+// Gestor de los métodos POST y GET para la ruta /accion
+void accion_method() {
+  if (server.method() == HTTP_GET) {
+    accion_get();  // Llama al gestor de GET
+  } else if (server.method() == HTTP_POST) {
+    accion_post();  // Llama al gestor de POST
+  } else {
+    server.send(404, TEXT_PLANO, "RECURSO NO ENCONTRADO");  // Responde con error 404 si el método no es válido
+  }
+}
+
+// Métodos GET de la ruta "/accion"
+void accion_get() {
+  // Verifica si se ha recibido un argumento para el actuador
+  if (server.hasArg(URL_VAR_ACTUADOR)) {
+    // Obtiene el valor del actuador recibido
+    String actuador = server.arg(URL_VAR_ACTUADOR);
+
+    // Detecta el valor actual del sensor correspondiente al actuador
     String _valor = String(detectar_valor_sensor(actuador));
 
-    String jsonResponse = json_actuador(actuador,_valor);
+    // Genera una respuesta JSON con el actuador y su valor
+    String jsonResponse = json_actuador(actuador, _valor);
 
-    server.send(200,JSON,jsonResponse);
-  }else{
+    // Envía una respuesta HTTP 200 con el contenido JSON
+    server.send(200, JSON, jsonResponse);
+  } else {
+    // Si no se recibió un actuador, genera una respuesta JSON con todos los estados de los actuadores
     String jsonResponse;
-    jsonResponse = JS_INICIO   +
-                    JS_LED     + JS_CV + JS + String(sensor_led)   + JS +
-                    JS_ADD     +
-                    JS_SENSOR  + JS_CV + JS + String(sensor_servo) + JS +
-                    JS_FIN;
+    jsonResponse = JS_INICIO +                                           // Inicio del JSON
+                   JS_LED + JS_CV + JS + String(sensor_led) + JS +       // Estado del LED
+                   JS_ADD +                                              // Agrega un separador
+                   JS_SENSOR + JS_CV + JS + String(sensor_servo) + JS +  // Estado del sensor servo
+                   JS_FIN;                                               // Fin del JSON
 
-    server.send(200,JSON,jsonResponse);
+    // Envía una respuesta HTTP 200 con el contenido JSON
+    server.send(200, JSON, jsonResponse);
   }
 }
 
-// metodo post de la ruta "/accion"
-void accion_post(){
-  if (server.hasArg(URL_VAR_ACTUADOR) && server.hasArg(URL_VAR_ACTUADOR_VALOR)){
+// Métodos POST de la ruta "/accion"
+void accion_post() {
+  // Verifica si se han recibido argumentos para el actuador y su valor
+  if (server.hasArg(URL_VAR_ACTUADOR) && server.hasArg(URL_VAR_ACTUADOR_VALOR)) {
+    // Obtiene el actuador y su valor del POST
     String _actuador = server.arg(URL_VAR_ACTUADOR);
     String _valor = server.arg(URL_VAR_ACTUADOR_VALOR);
 
-    String jsonResponse = json_actuador(_actuador,_valor);
-    solictar_actuadores("MOVE "+_actuador+" ",_valor);
-    
-    server.send(200,JSON,jsonResponse);
-  }else{
-    server.send(400,TEXT_PLANO,"ERROR POST");
+    // Genera una respuesta JSON para el actuador y su nuevo valor
+    String jsonResponse = json_actuador(_actuador, _valor);
+
+    // Solicita mover el actuador al nuevo valor
+    solictar_actuadores("MOVE " + _actuador + " ", _valor);
+
+    // Envía una respuesta HTTP 200 con el contenido JSON
+    server.send(200, JSON, jsonResponse);
+  } else {
+    // Si faltan parámetros, envía una respuesta HTTP 400 con un mensaje de error
+    server.send(400, TEXT_PLANO, "ERROR POST");
   }
 }
 
-String json_actuador(String _url_var,String _new_valor){
+// Genera una respuesta JSON para el actuador y su nuevo valor
+String json_actuador(String _url_var, String _new_valor) {
+  String actuador = _url_var;  // Guarda el actuador recibido
+  String _valor = _new_valor;  // Guarda el nuevo valor del actuador
+  String _jsonResponse;        // Variable para almacenar la respuesta JSON
 
-  String actuador = _url_var;                     // Mandar solo el sensor recibido
-  String _valor = _new_valor;
-  String _jsonResponse;
-  _jsonResponse = JS_INICIO   + 
-                  JS_ACTUADOR + JS_CV + actuador +
-                  JS_ADD      +
-                  JS_VALOR    + JS_CV + _valor + 
-                  JS_FIN;
-  return _jsonResponse;
+  // Construye la respuesta JSON
+  _jsonResponse = JS_INICIO +                       // Inicio del JSON
+                  JS_ACTUADOR + JS_CV + actuador +  // Agrega el actuador
+                  JS_ADD +                          // Agrega un separador
+                  JS_VALOR + JS_CV + _valor +       // Agrega el nuevo valor
+                  JS_FIN;                           // Fin del JSON
+
+  return _jsonResponse;  // Devuelve la respuesta JSON generada
 }
 
-int detectar_valor_sensor(String _tipo){
-  if(_tipo == C_LDR){
-    return sensor_ldr_promedio;
-  }else if (_tipo == C_Humedad_aire){
-    return sensor_humedad_aire;
-  }else if (_tipo == C_Humedad_suelo){
-    return sensor_humedad_suelo;
-  }else if (_tipo == C_Temperatura){
-    return sensor_temperatura;
-  }else if (_tipo == C_Nivel_agua){
-    return sensor_nivel_agua;
-  }else if (_tipo == C_servo){
-    return sensor_servo;
-  }else if (_tipo == C_LED){
-    return sensor_led;
-  }else{
-    return -1;
+// Detecta el valor del sensor según el tipo proporcionado
+int detectar_valor_sensor(String _tipo) {
+  // Compara el tipo de sensor y devuelve su valor correspondiente
+  if (_tipo == C_LDR) {
+    return sensor_ldr_promedio;  // Retorna el valor promedio del LDR
+  } else if (_tipo == C_Humedad_aire) {
+    return sensor_humedad_aire;  // Retorna el valor de humedad del aire
+  } else if (_tipo == C_Humedad_suelo) {
+    return sensor_humedad_suelo;  // Retorna el valor de humedad del suelo
+  } else if (_tipo == C_Temperatura) {
+    return sensor_temperatura;  // Retorna el valor de temperatura
+  } else if (_tipo == C_Nivel_agua) {
+    return sensor_nivel_agua;  // Retorna el valor del nivel de agua
+  } else if (_tipo == C_servo) {
+    return sensor_servo;  // Retorna el valor del servo
+  } else if (_tipo == C_LED) {
+    return sensor_led;  // Retorna el estado del LED
+  } else {
+    return -1;  // Retorna -1 si el tipo no es reconocido
   }
 }
 
@@ -624,127 +624,151 @@ int detectar_valor_sensor(String _tipo){
 ###################################################################################
 */
 
-void loop_sistema_comunicacion(){
-  leer_serial_esp();
-  leer_serial_arduino();
+// Función principal para manejar la comunicación entre el Arduino y el ESP
+void loop_sistema_comunicacion() {
+  leer_serial_esp();      // Llama a la función para leer datos del ESP
+  leer_serial_arduino();  // Llama a la función para leer datos del Arduino
 }
 
-
-/////////////////////////////////////////////////////////
-// Lectura de monitor serial fisico
-
-void leer_serial_arduino (){
-  if(Serial.available()){
+// Lectura de monitor serial físico
+void leer_serial_arduino() {
+  // Verifica si hay datos disponibles en el puerto serial del Arduino
+  if (Serial.available()) {
+    // Lee un mensaje completo hasta el salto de línea
     mandar_mensaje = Serial.readStringUntil('\n');
-    softwareSerial.println(mandar_mensaje);
-    Serial.println("mensaje enviado al arduino: " + mandar_mensaje);
 
-    if (mandar_mensaje == STOP_COMUNICACION ) {
+    if (mandar_mensaje == COMUNICACION_SERIAL_STOP) {
       comunicacion_enable = false;
-    }else if (mandar_mensaje == START_COMUNICACION) {
+      Serial.println("APAGANDO COMUNICACION SERIAL");
+
+    } else if (mandar_mensaje == COMUNICACION_SERIAL_START) {
       comunicacion_enable = true;
-    
+      Serial.println("ENCENDER COMUNICACION SERIAL");
+
+    } else if (mandar_mensaje == WIFI_CONECTAR) {
+      ap_setting();
+      sta_conectarse_red();
+      wifi_conection_enable = true;
+      Serial.println("Encendiendo redes");
+
+    } else if (mandar_mensaje == WIFI_DESCONECTAR) {
+      WiFi.disconnect(true);
+      WiFi.softAPdisconnect(true);
+      wifi_conection_enable = false;
+      Serial.println("Apagando redes");
+
+
+    } else {
+      // Envía el mensaje leído al puerto serial del ESP
+      softwareSerial.println(mandar_mensaje);
+
+      // Imprime en consola el mensaje que se envió al Arduino
+      Serial.println("mensaje enviado al arduino: " + mandar_mensaje);
     }
-
-    
   }
-
 }
 
-////////////////////////////////////////////////////////////
-// Lectura de monitor serial que esta coenctado al arduino
-void leer_serial_esp (){
-  if(softwareSerial.available()){                             // lee si hay un dato por serial
-    mensaje_arduino = softwareSerial.readStringUntil('\n');   // espera que lleguen todos los datos
+// Lectura de monitor serial que está conectado al Arduino
+void leer_serial_esp() {
+  // Verifica si hay datos disponibles en el puerto serial del ESP
+  if (softwareSerial.available()) {  // Lee si hay un dato por serial
+    // Lee un mensaje completo hasta el salto de línea
+    mensaje_arduino = softwareSerial.readStringUntil('\n');
+
+    // Guarda el mensaje leído en la variable 'comando'
     comando = mensaje_arduino;
 
-    Serial.println("mensaje recibido: " + mensaje_arduino);   // imprime el dato en consola
+    // Imprime en consola el mensaje recibido del ESP
+    Serial.println("mensaje recibido: " + mensaje_arduino);
+
+    // Llama a la función para procesar los datos recibidos
     obtencion_data();
-    
   }
-
 }
 
-// corte de datos recibido por serial
-String cortar_comando(String dato){
+// Corte de datos recibidos por serial
+String cortar_comando(String dato) {
+  // Encuentra la posición del primer espacio en el dato
   byte _inicio_valor = dato.indexOf(' ');
-  byte _fin_valor    = dato.indexOf(' ',_inicio_valor + 1);
+  // Encuentra la posición del segundo espacio
+  byte _fin_valor = dato.indexOf(' ', _inicio_valor + 1);
 
-  comando_objetivo = dato.substring(0,_inicio_valor);
-  comando_valor    = dato.substring(_inicio_valor +1 , _fin_valor);
-  return comando   = dato.substring(_fin_valor +1);
+  // Extrae el primer comando hasta el primer espacio
+  comando_objetivo = dato.substring(0, _inicio_valor);
+  // Extrae el valor del comando entre los dos espacios
+  comando_valor = dato.substring(_inicio_valor + 1, _fin_valor);
+  // Retorna el resto del comando después del segundo espacio
+  return comando = dato.substring(_fin_valor + 1);
 }
 
-// comprueba si es un numero
-int comprobar_valor(){
-  return comando_valor.toInt();
+// Comprueba si es un número y devuelve su valor entero
+int comprobar_valor() {
+  return comando_valor.toInt();  // Convierte el comando_valor a entero
 }
 
-// compara con los datos obtenido para sacar un valor 
-void interpretacion_objetivo(){
-  if(comando_objetivo == C_LDR0){
-    sensor_ldr0 = comprobar_valor();
-  }else if (comando_objetivo == C_LDR1){
-    sensor_ldr1 = comprobar_valor();
-  }else if (comando_objetivo == C_LDR2){
-    sensor_ldr2 = comprobar_valor();
-  }else if (comando_objetivo == C_Humedad_aire){
-    sensor_humedad_aire = comprobar_valor();
+// Compara los datos obtenidos para actualizar los valores de los sensores
+void interpretacion_objetivo() {
+  // Compara el comando objetivo y asigna el valor correspondiente a cada sensor
+  if (comando_objetivo == C_LDR0) {
+    sensor_ldr0 = comprobar_valor();  // Actualiza sensor LDR0
+  } else if (comando_objetivo == C_LDR1) {
+    sensor_ldr1 = comprobar_valor();  // Actualiza sensor LDR1
+  } else if (comando_objetivo == C_LDR2) {
+    sensor_ldr2 = comprobar_valor();  // Actualiza sensor LDR2
+  } else if (comando_objetivo == C_Humedad_aire) {
+    sensor_humedad_aire = comprobar_valor();  // Actualiza sensor de humedad del aire
+  } else if (comando_objetivo == C_Humedad_suelo) {
+    sensor_humedad_suelo = comprobar_valor();  // Actualiza sensor de humedad del suelo
+  } else if (comando_objetivo == C_Temperatura) {
+    sensor_temperatura = comprobar_valor();  // Actualiza sensor de temperatura
+  } else if (comando_objetivo == C_Nivel_agua) {
+    sensor_nivel_agua = comprobar_valor();  // Actualiza sensor de nivel de agua
+  } else if (comando_objetivo == C_LED) {
+    sensor_led = comprobar_valor();  // Actualiza estado del LED
+  } else if (comando_objetivo == C_servo) {
+    sensor_servo = comprobar_valor();  // Actualiza estado del servo
+  } else {
+    Serial.println("ERROR");  // Imprime un mensaje de error si el comando no es reconocido
   }
-  else if (comando_objetivo == C_Humedad_suelo){
-    sensor_humedad_suelo = comprobar_valor();
-  }
-  else if (comando_objetivo == C_Temperatura){
-    sensor_temperatura = comprobar_valor();
-  }else if (comando_objetivo == C_Nivel_agua){
-    sensor_nivel_agua = comprobar_valor();
-  }else if (comando_objetivo == C_LED){
-    sensor_led = comprobar_valor();
-  }else if (comando_objetivo == C_servo){
-    sensor_servo = comprobar_valor();
-  }else{
-    Serial.println("ERROR");
-  }
-
 }
 
-// gestiona los errores 
-void interpretacion_errores_serial (char _data){
-  if(_data == SERIAL_EXITO){
-    Serial.println("COMANDO EJECUTADO CON EXITO");
-  }else if(_data == SERIAL_SENSORES){
-    Serial.println("DATO RECIBIDO");
-  }else {
-    //Serial.println(mensaje_arduino);
+// Gestiona los errores recibidos
+void interpretacion_errores_serial(char _data) {
+  // Compara el dato recibido y muestra un mensaje correspondiente
+  if (_data == SERIAL_EXITO) {
+    Serial.println("COMANDO EJECUTADO CON EXITO");  // Indica éxito en la ejecución del comando
+  } else if (_data == SERIAL_SENSORES) {
+    Serial.println("DATO RECIBIDO");  // Indica que se recibió un dato de los sensores
+  } else {
+    //Serial.println(mensaje_arduino); // (opcional) Descomentar para mostrar mensaje en caso de error
   }
-
 }
 
+// Corte de todos los comandos
+void obtencion_data() {
 
-// corte de todo los comandos 
-void obtencion_data(){
-  if(!isDigit(comando[0])){
-      while (comando.length() >= 3){
-        comando = cortar_comando(comando);                      // corta el comando y saca el primer objetivo y el primer valor
-        interpretacion_objetivo();
+  if (!isDigit(comando[0])) {  // Verifica que el primer carácter no sea un dígito
 
-        //Serial.println(comando_objetivo);
-        //Serial.println(comando_valor);
-        //Serial.println(comando);
-        }
+    while (comando.length() >= 3) {  // Mientras la longitud del comando sea mayor o igual a 3
+
+      comando = cortar_comando(comando);  // Corta el comando y extrae el primer objetivo y el primer valor
+      interpretacion_objetivo();          // Procesa el objetivo obtenido
     }
+  }
 }
 
-// SOLICITA DATOS 
-void solictar_sensores(String _comando){
-  softwareSerial.println(_comando);
-  Serial.println("Comando enviado: "+ _comando);
+// SOLICITA DATOS
+void solictar_sensores(String _comando) {
+
+  softwareSerial.println(_comando);                // Envía el comando al ESP
+  Serial.println("Comando enviado: " + _comando);  // Imprime en consola el comando enviado
 }
 
-// SOLICITUD DE EJECUTION
-void solictar_actuadores(String _actuadores,String _valor){
-  softwareSerial.println(_actuadores + _valor);
-  Serial.println("Comando enviado: "+ _actuadores + _valor);
+// SOLICITUD DE EJECUCIÓN
+void solictar_actuadores(String _actuadores, String _valor) {
+
+  softwareSerial.println(_actuadores + _valor);                // Envía el comando de actuación junto con el valor al ESP
+  Serial.println("Comando enviado: " + _actuadores + _valor);  // Imprime en consola el comando enviado
 }
 
 /*
@@ -755,59 +779,31 @@ void solictar_actuadores(String _actuadores,String _valor){
 ###################################################################################################
 */
 
-// AQUI TODO LO QUE SE DEBE DE EJECUTAR LO MAS RAPIDO POSIBLE
-void loop_monitoreo_control(){
-
+// Aquí todo lo que se debe de ejecutar lo más rápido posible
+void loop_monitoreo_control() {
+  // Este espacio puede ser usado para monitoreo continuo
 }
 
-// AQUI TODO LO QUE SE DEBE DE EJECUTAR CADA 5 SEGUNDO
-void loop_control_lento(){
-  
-  //Serial.println(millis());
+// Aquí todo lo que se debe de ejecutar cada 5 segundos
+void loop_control_lento() {
+  //Serial.println(millis()); // (opcional) Descomentar para ver el tiempo en milisegundos
 }
 
-// AQUI TODO LO QUE SE DEBE DE EJECUTAR CADA 10 SEGUNDO
-void loop_control_super_lento(){
-  if (comunicacion_enable == true ){
-    actualizar_serial();
+// Aquí todo lo que se debe de ejecutar cada 10 segundos
+void loop_control_super_lento() {
+  actualizar_serial();  // Llama a la función para actualizar el estado de los sensores
+}
+
+// Actualiza el estado de los sensores y calcula el promedio del LDR
+void actualizar_serial() {
+  if (comunicacion_enable == true) {
+    solictar_sensores(LEER_SENSORES);  // Solicita la lectura de los sensores
+    promedio_ldr();                    // Calcula el promedio de los valores del LDR
   }
-  
 }
 
-
-
-void actualizar_serial(){
-  solictar_sensores(LEER_SENSORES);
-  promedio_ldr();
+// Calcula el promedio de los valores del LDR
+void promedio_ldr() {
+  // Calcula el promedio de los sensores LDR y lo almacena en sensor_ldr_promedio
+  sensor_ldr_promedio = int((sensor_ldr0 + sensor_ldr1 + sensor_ldr2) / 3);
 }
-
-void promedio_ldr(){
- sensor_ldr_promedio = int((sensor_ldr0 + sensor_ldr1 +sensor_ldr2) / 3); 
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
